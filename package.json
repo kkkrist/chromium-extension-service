@@ -1,0 +1,25 @@
+{
+  "name": "chromium-extension-service",
+  "version": "1.0.0",
+  "description": "Proxy for Chrome extension meta data",
+  "main": "api/index.js",
+  "scripts": {
+    "start": "now dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kkkrist/chromium-extension-service.git"
+  },
+  "author": "Christian Mund <opensource@mundpropaganda.net>",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/kkkrist/chromium-extension-service/issues"
+  },
+  "homepage": "https://github.com/kkkrist/chromium-extension-service#readme",
+  "dependencies": {
+    "lodash.get": "^4.4.2",
+    "mongodb": "^3.3.2",
+    "node-fetch": "^2.6.0",
+    "xmltwojs": "^4.0.0"
+  }
+}
