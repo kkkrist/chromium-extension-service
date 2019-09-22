@@ -13,7 +13,7 @@
       }
     },
     {
-      "src": "/api/(.*)",
+      "src": "/api(.*)",
       "headers": {
         "access-control-allow-origin": "*"
       }
