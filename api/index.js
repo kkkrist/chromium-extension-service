@@ -63,7 +63,7 @@ const updateCache = async (fresh, prodversion) => {
       }
     })
 
-  return freshDb
+  return freshDb.map(({ value }) => value).flat()
 }
 
 module.exports = async (req, res) => {
@@ -78,7 +78,8 @@ module.exports = async (req, res) => {
 
     if (!_cache) {
       const col = await getCollection(process.env.MONGODB_URI)
-      _cache = (await col.find().toArray()) || []
+      const fromDb = await col.find().toArray()
+      _cache = fromDb || []
     }
 
     const cached = _cache.filter(
@@ -104,15 +105,9 @@ module.exports = async (req, res) => {
       )
     )
 
-    return res
-      .status(200)
-      .json([
-        ...cached,
-        ...(await updateCache(
-          fresh.map(({ value }) => value).flat(),
-          prodversion
-        ))
-      ])
+    const newlyCached = await updateCache(fresh.flat(), prodversion)
+
+    return res.status(200).json([...cached, ...newlyCached])
   } catch (error) {
     console.error(error)
     return res.status(500).json({ error: error.message })
