@@ -96,7 +96,7 @@ module.exports = async (req, res) => {
         return acc
       }, {})
 
-    const fresh = (await Promise.allSettled(
+    const fresh = (await Promise.all(
       Object.keys(jobs).map(
         updateUrl =>
           updateUrl && getFreshEntries(updateUrl, jobs[updateUrl], prodversion)
