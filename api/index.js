@@ -67,9 +67,7 @@ const updateCache = async (fresh, prodversion) => {
 
 module.exports = async (req, res) => {
   try {
-    const body =
-      typeof req.body === 'string' ? JSON.parse(req.body) : req.body || {}
-    const { extensions, prodversion } = body || {}
+    const { extensions, prodversion } = req.body || {}
 
     if (!Array.isArray(extensions) || !prodversion) {
       return res.status(400).json({ error: 'Missing args!' })
