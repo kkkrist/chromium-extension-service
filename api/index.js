@@ -41,7 +41,7 @@ const getFreshEntries = async (updateUrl, ids, prodversion) => {
 const updateCache = async (fresh, prodversion) => {
   const col = await getCollection(process.env.MONGODB_URI)
 
-  const freshDb = await Promise.all(
+  const freshDb = (await Promise.all(
     fresh.map(item =>
       col.findOneAndUpdate(
         { id: item.id, prodversion },
@@ -49,21 +49,20 @@ const updateCache = async (fresh, prodversion) => {
         { returnOriginal: false, upsert: true }
       )
     )
-  )
-
-  freshDb
+  ))
     .map(({ value }) => value)
     .flat()
-    .forEach(item => {
-      const index = _cache.findIndex(({ id }) => id === item.id)
-      if (index > -1) {
-        _cache[index] = item
-      } else {
-        _cache.push(item)
-      }
-    })
 
-  return freshDb.map(({ value }) => value).flat()
+  freshDb.forEach(item => {
+    const index = _cache.findIndex(({ id }) => id === item.id)
+    if (index > -1) {
+      _cache[index] = item
+    } else {
+      _cache.push(item)
+    }
+  })
+
+  return freshDb
 }
 
 module.exports = async (req, res) => {
@@ -78,8 +77,7 @@ module.exports = async (req, res) => {
 
     if (!_cache) {
       const col = await getCollection(process.env.MONGODB_URI)
-      const fromDb = await col.find().toArray()
-      _cache = fromDb || []
+      _cache = (await col.find().toArray()) || []
     }
 
     const cached = _cache.filter(
@@ -98,16 +96,16 @@ module.exports = async (req, res) => {
         return acc
       }, {})
 
-    const fresh = await Promise.all(
+    const fresh = (await Promise.all(
       Object.keys(jobs).map(
         updateUrl =>
           updateUrl && getFreshEntries(updateUrl, jobs[updateUrl], prodversion)
       )
-    )
+    )).flat()
 
-    const newlyCached = await updateCache(fresh.flat(), prodversion)
-
-    return res.status(200).json([...cached, ...newlyCached])
+    return res
+      .status(200)
+      .json([...cached, ...(await updateCache(fresh, prodversion))])
   } catch (error) {
     console.error(error)
     return res.status(500).json({ error: error.message })
