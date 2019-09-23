@@ -1,3 +1,4 @@
+const _flatten = require('lodash.flatten')
 const _get = require('lodash.get')
 const MongoClient = require('mongodb').MongoClient
 const fetch = require('node-fetch')
@@ -41,17 +42,17 @@ const getFreshEntries = async (updateUrl, ids, prodversion) => {
 const updateCache = async (fresh, prodversion) => {
   const col = await getCollection(process.env.MONGODB_URI)
 
-  const freshDb = (await Promise.all(
-    fresh.map(item =>
-      col.findOneAndUpdate(
-        { id: item.id, prodversion },
-        { $set: item },
-        { returnOriginal: false, upsert: true }
+  const freshDb = _flatten(
+    (await Promise.all(
+      fresh.map(item =>
+        col.findOneAndUpdate(
+          { id: item.id, prodversion },
+          { $set: item },
+          { returnOriginal: false, upsert: true }
+        )
       )
-    )
-  ))
-    .map(({ value }) => value)
-    .flat()
+    )).map(({ value }) => value)
+  )
 
   freshDb.forEach(item => {
     const index = _cache.findIndex(({ id }) => id === item.id)
@@ -68,6 +69,10 @@ const updateCache = async (fresh, prodversion) => {
 module.exports = async (req, res) => {
   try {
     const { extensions, prodversion } = req.body || {}
+
+    if (req.method === 'OPTIONS') {
+      return res.status(200).json({})
+    }
 
     if (!Array.isArray(extensions) || !prodversion) {
       return res.status(400).json({ error: 'Missing args!' })
@@ -94,12 +99,15 @@ module.exports = async (req, res) => {
         return acc
       }, {})
 
-    const fresh = (await Promise.all(
-      Object.keys(jobs).map(
-        updateUrl =>
-          updateUrl && getFreshEntries(updateUrl, jobs[updateUrl], prodversion)
+    const fresh = _flatten(
+      await Promise.all(
+        Object.keys(jobs).map(
+          updateUrl =>
+            updateUrl &&
+            getFreshEntries(updateUrl, jobs[updateUrl], prodversion)
+        )
       )
-    )).flat()
+    )
 
     return res
       .status(200)

@@ -4,8 +4,7 @@
   "description": "Proxy for Chrome extension meta data",
   "main": "api/index.js",
   "engines": {
-    "node": ">=12.10.0",
-    "npm": ">= 6.11.3"
+    "node": "10.x"
   },
   "scripts": {
     "start": "now dev"
@@ -21,6 +20,7 @@
   },
   "homepage": "https://github.com/kkkrist/chromium-extension-service#readme",
   "dependencies": {
+    "lodash.flatten": "^4.4.0",
     "lodash.get": "^4.4.2",
     "mongodb": "^3.3.2",
     "node-fetch": "^2.6.0",
