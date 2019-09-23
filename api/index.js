@@ -41,7 +41,7 @@ const getFreshEntries = async (updateUrl, ids, prodversion) => {
 const updateCache = async (fresh, prodversion) => {
   const col = await getCollection(process.env.MONGODB_URI)
 
-  const .flat()freshDb = await Promise.all(
+  const freshDb = await Promise.all(
     fresh.map(item =>
       col.findOneAndUpdate(
         { id: item.id, prodversion },
