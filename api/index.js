@@ -4,11 +4,14 @@ const fetch = require('node-fetch')
 const url = require('url')
 const xmltwojs = require('xmltwojs')
 
-const cache = []
-let col = null
+let _cache = null
+let _col = null
 
-const connectToDatabase = async uri => {
-  if (col) return col
+const addIfNew = (arr = [], item) =>
+  item === undefined ? arr : [...new Set([...arr]).add(item)]
+
+const getCollection = async uri => {
+  if (_col) return _col
 
   const client = await MongoClient.connect(uri, {
     useNewUrlParser: true,
@@ -16,68 +19,97 @@ const connectToDatabase = async uri => {
   })
   const db = await client.db(url.parse(uri).pathname.substr(1))
 
-  return (col = await db.collection('extensions'))
+  return (_col = await db.collection('extensions'))
 }
 
-const getFreshEntry = async (url, extensionId, prodversion) => {
-  const x = encodeURIComponent(`id=${extensionId}&uc`)
-  const xml = await fetch(`${url}?x=${x}&prodversion=${prodversion}`).then(
-    req => req.text()
-  )
+const getFreshEntries = async (updateUrl, ids, prodversion) => {
+  const x = ids.map(id => `x=${encodeURIComponent(`id=${id}&uc`)}`)
+  const xml = await fetch(
+    `${updateUrl}?${x.join('&')}&prodversion=${prodversion}`
+  ).then(req => req.text())
+  const app = _get(xmltwojs.parse(xml), 'gupdate.app', [])
 
-  return {
-    extensionId,
+  return app.map(a => ({
+    id: a.appid,
     prodversion,
     timestamp: new Date().getTime(),
-    url,
-    ..._get(xmltwojs.parse(xml), 'gupdate.app.updatecheck', {})
-  }
+    updateUrl,
+    ...a.updatecheck
+  }))
 }
 
-const updateCache = (extensionId, prodversion, newEntry) => {
-  const index = cache.findIndex(
-    entry =>
-      entry.extensionId === extensionId && entry.prodversion === prodversion
-  )
+const updateCache = async (fresh, prodversion) => {
+  const col = await getCollection(process.env.MONGODB_URI)
 
-  return index > -1
-    ? (cache[index] = newEntry)
-    : cache.push(newEntry) && newEntry
+  const freshDb = (await Promise.all(
+    fresh.map(item =>
+      col.findOneAndUpdate(
+        { id: item.id, prodversion },
+        { $set: item },
+        { returnOriginal: false, upsert: true }
+      )
+    )
+  ))
+    .map(({ value }) => value)
+    .flat()
+
+  freshDb.forEach(item => {
+    const index = _cache.findIndex(({ id }) => id === item.id)
+    if (index > -1) {
+      _cache[index] = item
+    } else {
+      _cache.push(item)
+    }
+  })
+
+  return freshDb
 }
 
 module.exports = async (req, res) => {
-  const { extensionId, prodversion, url } = req.query
-
-  if (!extensionId || !prodversion || !url)
-    return res.status(400).json({ error: 'Missing args!' })
-
-  const cachedEntry = cache.find(
-    entry =>
-      entry.extensionId === extensionId && entry.prodversion === prodversion
-  )
-
   try {
-    const extensions = await connectToDatabase(process.env.MONGODB_URI)
-    const entry =
-      cachedEntry || (await extensions.findOne({ extensionId, prodversion }))
+    const body =
+      typeof req.body === 'string' ? JSON.parse(req.body) : req.body || {}
+    const { extensions, prodversion } = body || {}
 
-    if (entry && entry.timestamp + 10000 > new Date().getTime()) {
-      return res.status(200).json(entry)
-    } else {
-      const freshEntry = await getFreshEntry(url, extensionId, prodversion)
-      const { value } = await extensions.findOneAndUpdate(
-        { extensionId, prodversion },
-        { $set: freshEntry },
-        { returnOriginal: false, upsert: true }
-      )
-
-      return res.status(200).json(updateCache(extensionId, prodversion, value))
+    if (!Array.isArray(extensions) || !prodversion) {
+      return res.status(400).json({ error: 'Missing args!' })
     }
+
+    if (!_cache) {
+      const col = await getCollection(process.env.MONGODB_URI)
+      _cache = (await col.find().toArray()) || []
+    }
+
+    const cached = _cache.filter(
+      c =>
+        extensions.find(ext => ext.id === c.id) &&
+        c.prodversion === prodversion &&
+        c.timestamp + 10000 > new Date().getTime()
+    )
+
+    const jobs = extensions
+      .filter(ext => !cached.find(ce => ce.id === ext.id))
+      .reduce((acc, { id, updateUrl }) => {
+        if (updateUrl) {
+          acc[updateUrl] = addIfNew(acc[updateUrl], id)
+        }
+        return acc
+      }, {})
+
+    const fresh = (await Promise.allSettled(
+      Object.keys(jobs).map(
+        updateUrl =>
+          updateUrl && getFreshEntries(updateUrl, jobs[updateUrl], prodversion)
+      )
+    ))
+      .map(({ value }) => value)
+      .flat()
+
+    return res
+      .status(200)
+      .json([...cached, ...(await updateCache(fresh, prodversion))])
   } catch (error) {
     console.error(error)
     return res.status(500).json({ error: error.message })
   }
 }
-
-// http://localhost:3000/api/?extensionId=chlffgpmiacpedhhbkiomidkjlcfhogd&prodversion=77.0.3865.90&url=https://clients2.google.com/service/update2/crx
-// https://chrome-extension-service.info29.now.sh/api?extensionId=chlffgpmiacpedhhbkiomidkjlcfhogd&prodversion=77.0.3865.90&url=https://clients2.google.com/service/update2/crx
