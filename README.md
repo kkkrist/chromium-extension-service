@@ -1,6 +1,6 @@
 # Chromium Extension Service
 
-This is a proxy service required by [Chromium Update Notifications](https://github.com/kkkrist/chromium-notifier) to fetch version info for installed extensions.
+This is a proxy service required by [Chromium Update Notifications](https://github.com/kkkrist/chromium-notifier) to fetch version info for installed extensions. It enables bypassing of [CORS](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing) restrictions of the [Chrome Web Store](https://chrome.google.com/webstore/category/extensions) and tracking of GitHub-hosted extensions (see below).
 
 ## Requirements
 
@@ -51,4 +51,9 @@ The service will then respond with an array consisting of version info and meta 
 
 Note: This is all the database ever contains, nothing else – particularly client (end user) data  – is ever collected.
 
-(WIP)
+## Developers
+
+If you want to have your GitHub-hosted Chromium extension tracked via this service, follow these steps:
+
+1. Include `github:<user>/<repo>` as `update_url` in your `manifest.json`.
+2. Make sure to tag your versions. E.g., if the current `version` specified in your `manifest.json` equals to `1.2.3`, there needs to be a tag named `v1.2.3` in your repo to make the download links work.
