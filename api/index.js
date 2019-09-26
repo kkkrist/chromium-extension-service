@@ -105,7 +105,7 @@ module.exports = async (req, res) => {
       c =>
         extensions.find(ext => ext.id === c.id) &&
         c.prodversion === prodversion &&
-        c.timestamp + 10000 > new Date().getTime()
+        c.timestamp + 30 * 60 * 1000 > new Date().getTime()
     )
 
     const jobs = extensions
