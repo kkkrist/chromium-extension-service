@@ -8,8 +8,6 @@ This is a proxy service required by [Chromium Update Notifications](https://gith
 - A MongoDB database (for persistence)
 - The environment variable `MONGODB_URI` provided via Now Secrets (prod) or a local `.env` file (dev)
 
-(Although this could be deployed with plain Node.js no prob, just run `MONGODB_URI=<ConnectionString> node api/`)
-
 ## Usage
 
 Send a `POST` request to `/api` with the following JSON body:
