@@ -14,16 +14,16 @@ Send a `POST` request to `/api` with the following JSON body:
 
 ```json
 {
-  "prodversion": "<chrome version>",
+  "prodversion": "<Chromium version>",
   "extensions": [
-    { "id": "<extension id>",  "updateUrl": "<URL to Omaha-compatible endpoint"},
-    { "id": "<extension id>",  "updateUrl": "<URL to Omaha-compatible endpoint"},
+    { "id": "<extension id>",  "updateUrl": "<URL to Omaha-compatible endpoint>"},
+    { "id": "<extension id>",  "updateUrl": "<URL to Omaha-compatible endpoint>"},
     …
   ]
 }
 ```
 
-The service will then respond with an array consisting of version info and meta data of said extensions:
+The service will respond with an array consisting of version info and meta data of said extensions:
 
 ```json
 [
@@ -47,7 +47,7 @@ The service will then respond with an array consisting of version info and meta 
 ]
 ```
 
-Note: This is all the database ever contains, nothing else – particularly client (end user) data  – is ever collected.
+Note: This is all that's ever saved anywhere, nothing else – particularly client (end user) data  – is ever collected.
 
 ## Developers
 
