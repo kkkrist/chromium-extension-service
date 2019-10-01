@@ -7,13 +7,6 @@
   "regions": ["bru1"],
   "routes": [
     {
-      "src": "^/$",
-      "status": 301,
-      "headers": {
-        "Location": "https://github.com/kkkrist/chromium-extension-service"
-      }
-    },
-    {
       "src": "/api(.*)",
       "headers": {
         "access-control-allow-headers": "Content-Type",
