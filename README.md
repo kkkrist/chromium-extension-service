@@ -47,7 +47,7 @@ The service will respond with an array consisting of version info and meta data 
 ]
 ```
 
-Note: This is all that's ever saved anywhere, nothing else – particularly client (end user) data  – is ever collected.
+Note: This is all that's ever saved anywhere, nothing else – particularly client (end user) data  – is collected.
 
 ## Developers
 
