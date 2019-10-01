@@ -1,27 +1,13 @@
 const _flatten = require('lodash.flatten')
 const _get = require('lodash.get')
-const MongoClient = require('mongodb').MongoClient
 const fetch = require('node-fetch')
-const url = require('url')
 const xmltwojs = require('xmltwojs')
+const getCollection = require('../lib/get-collection')
 
 let _cache = null
-let _col = null
 
 const addIfNew = (arr = [], item) =>
   item === undefined ? arr : [...new Set([...arr]).add(item)]
-
-const getCollection = async uri => {
-  if (_col) return _col
-
-  const client = await MongoClient.connect(uri, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-  })
-  const db = await client.db(url.parse(uri).pathname.substr(1))
-
-  return (_col = await db.collection('extensions'))
-}
 
 const getFreshEntries = async (updateUrl, ids, prodversion) => {
   if (updateUrl.match(/^github:/)) {
