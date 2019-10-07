@@ -1,14 +1,17 @@
 const getCollection = require('../../lib/get-collection')
 
-const getPipeline = key => [
+const pipeline = [
   {
     $group: {
-      _id: `$${key}`,
-      total: {
-        $sum: 1
+      _id: '$id',
+      prodversions: {
+        $addToSet: '$prodversion'
       },
       timestamp: {
         $max: '$timestamp'
+      },
+      updateUrl: {
+        $last: "$updateUrl"
       }
     }
   },
@@ -23,16 +26,13 @@ const getPipeline = key => [
 module.exports = async (req, res) => {
   try {
     if (req.method === 'OPTIONS') {
-      return res.status(200).json({})
+      return res.status(200).json()
     }
 
     const col = await getCollection(process.env.MONGODB_URI)
-    const [ids, prodversions] = await Promise.all([
-      col.aggregate(getPipeline('id')).toArray(),
-      col.aggregate(getPipeline('prodversion')).toArray()
-    ])
+    const data = await col.aggregate(pipeline).toArray()
 
-    return res.status(200).json({ ids, prodversions })
+    return res.status(200).json(data)
   } catch (error) {
     console.error(error)
     return res.status(500).json({ error: error.message })
