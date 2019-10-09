@@ -34,6 +34,10 @@ const getFreshEntries = async (updateUrl, ids, prodversion) => {
   ).then(req => req.text())
   const app = _get(xmltwojs.parse(xml), 'gupdate.app', [])
 
+  if (!app.map) {
+    console.log(app)
+  }
+
   return app.map(a => ({
     id: a.appid,
     prodversion,
