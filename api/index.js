@@ -34,11 +34,7 @@ const getFreshEntries = async (updateUrl, ids, prodversion) => {
   ).then(req => req.text())
   const app = _get(xmltwojs.parse(xml), 'gupdate.app', [])
 
-  if (!app.map) {
-    console.log(app)
-  }
-
-  return app.map(a => ({
+  return (Array.isArray(app) ? app : [app]).map(a => ({
     id: a.appid,
     prodversion,
     timestamp: new Date().getTime(),
