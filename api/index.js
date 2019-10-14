@@ -10,24 +10,6 @@ const addIfNew = (arr = [], item) =>
   item === undefined ? arr : [...new Set([...arr]).add(item)]
 
 const getFreshEntries = async (updateUrl, ids, prodversion) => {
-  if (updateUrl.match(/^github:/)) {
-    const repo = updateUrl.replace(/^github:/, '')
-    const manifest = await fetch(
-      `https://raw.githubusercontent.com/${repo}/master/manifest.json`
-    ).then(res => res.json())
-
-    return [
-      {
-        codebase: `https://github.com/${repo}/archive/v${manifest.version}.zip`,
-        id: ids[0],
-        prodversion,
-        timestamp: new Date().getTime(),
-        updateUrl,
-        version: manifest.version
-      }
-    ]
-  }
-
   const x = ids.map(id => `x=${encodeURIComponent(`id=${id}&uc`)}`)
   const xml = await fetch(
     `${updateUrl}?${x.join('&')}&prodversion=${prodversion}`

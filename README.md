@@ -48,10 +48,3 @@ The service will respond with an array consisting of version info and meta data 
 ```
 
 Note: This is all that's ever saved anywhere, nothing else – particularly client (end user) data  – is collected.
-
-## Developers
-
-If you want to have your GitHub-hosted Chromium extension tracked via this service, follow these steps:
-
-1. Include `github:<user>/<repo>` as `update_url` in your `manifest.json`.
-2. Make sure to tag your versions. E.g., if the current `version` specified in your `manifest.json` equals to `1.2.3`, there needs to be a tag named `v1.2.3` in your repo to make the download links work.
