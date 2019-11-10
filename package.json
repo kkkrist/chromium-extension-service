@@ -20,10 +20,12 @@
   },
   "homepage": "https://github.com/kkkrist/chromium-extension-service#readme",
   "dependencies": {
+    "hash-sum": "^2.0.0",
     "lodash.flatten": "^4.4.0",
     "lodash.get": "^4.4.2",
     "mongodb": "^3.3.2",
     "node-fetch": "^2.6.0",
+    "tokenthrottle": "^1.3.0",
     "xmltwojs": "^4.0.0"
   }
 }
