@@ -7,42 +7,58 @@ const throttle = tokenthrottle({
   window: 5 * 60 * 1000
 })
 
-module.exports = (req, res) =>
-  throttle.rateLimit(
-    req.headers['x-real-ip'] || req.connection.remoteAddress,
-    async (throttleError, limited) => {
-      try {
-        if (throttleError)
-          return res.status(500).json({ error: throttleError.message })
+/*
+fetch('http://localhost:3000/api/errorlogs', {
+  method: 'POST',
+  body: JSON.stringify({
+    error: JSON.stringify(error, Object.getOwnPropertyNames(error))
+  }),
+  headers: { 'Content-Type': 'application/json' }
+})
+*/
 
-        if (limited)
-          return res
-            .status(429)
-            .json({ error: 'Rate limit exceeded, please slow down.' })
+module.exports = (req, res) => {
+  try {
+    if (req.method === 'OPTIONS') return res.end()
 
-        if (req.method === 'OPTIONS') return res.end()
+    const hashedIp = hashSum(
+      req.headers['x-real-ip'] || req.connection.remoteAddress
+    )
 
-        const { message, stack } = req.body || {}
+    return throttle.rateLimit(hashedIp, async (throttleError, throttled) => {
+      if (throttleError) throw throttleError
 
-        if (!message || !stack)
-          return res.status(400).json({ error: 'Missing args!' })
+      if (throttled)
+        return res
+          .status(429)
+          .json({ error: 'Rate limit exceeded, please slow down.' })
 
-        const col = await getCollection(process.env.MONGODB_URI, 'errorlogs')
+      if (!req.body.error)
+        return res.status(400).json({ error: 'Missing args!' })
 
-        const report = {
-          createdAt: new Date(),
-          message,
-          ip: hashSum(req.headers['x-real-ip'] || req.connection.remoteAddress),
-          stack,
-          userAgent: req.headers['user-agent']
-        }
+      const col = await getCollection(process.env.MONGODB_URI, 'errorlogs')
 
-        await col.insertOne(report)
-
-        return res.end()
-      } catch (error) {
-        console.error(error)
-        return res.status(500).json({ error: error.message })
+      const report = {
+        createdAt: new Date(),
+        error: JSON.parse(req.body.error),
+        hashedIp,
+        userAgent: req.headers['user-agent']
       }
-    }
-  )
+
+      await col.findOneAndUpdate(
+        {
+          error: report.error,
+          hashedIp: report.hashedIp,
+          userAgent: report.userAgent
+        },
+        { $set: report },
+        { upsert: true }
+      )
+
+      return res.end()
+    })
+  } catch (error) {
+    console.error(error)
+    return res.status(500).json({ error: error.message })
+  }
+}
