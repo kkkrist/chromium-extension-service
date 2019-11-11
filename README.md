@@ -1,6 +1,6 @@
 # Chromium Extension Service
 
-This is a proxy service required by [Chromium Update Notifications](https://github.com/kkkrist/chromium-notifier) to fetch version info for installed extensions. It enables bypassing of [CORS](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing) restrictions of the [Chrome Web Store](https://chrome.google.com/webstore/category/extensions) and tracking of GitHub-hosted extensions (see below).
+This is a service used by [Chromium Update Notifications](https://github.com/kkkrist/chromium-notifier) primarily for error tracking. Legacy versions use it to fetch version info for installed extensions too.
 
 ## Requirements
 
@@ -9,6 +9,36 @@ This is a proxy service required by [Chromium Update Notifications](https://gith
 - The environment variable `MONGODB_URI` provided via Now Secrets (prod) or a local `.env` file (dev)
 
 ## Usage
+
+Note: The responses you see here is all that's ever saved anywhere, nothing else – particularly client (end user) data  – is collected.
+
+### Error tracking
+
+Send a `POST` request to `/api/errorlogs` with the following JSON body:
+
+```json
+{
+  "message": "<Error.prototype.message>",
+  "stack": "<Error.prototype.stack>"
+}
+```
+
+The service will then store the following info in the database (the ip is hashed):
+
+```json
+{
+  "createdAt": "2019-11-10T23:33:26.525Z",
+  "message": "<Error.prototype.message>",
+  "ip": "1a3a493b",
+  "stack": "<Error.prototype.stack>",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.390 4.97 Safari/537.36",
+  "_id": "5dc89e461f8c375aa22424cc"
+}
+```
+
+### Version info for installed extensions
+
+Note: This is only used by Chromium Update Notifications prior to `v1.7.0`. Newer versions will hit `updateUrl` endpoints directly.
 
 Send a `POST` request to `/api` with the following JSON body:
 
@@ -46,5 +76,3 @@ The service will respond with an array consisting of version info and meta data 
   }
 ]
 ```
-
-Note: This is all that's ever saved anywhere, nothing else – particularly client (end user) data  – is collected.
