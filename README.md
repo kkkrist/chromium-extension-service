@@ -1,6 +1,6 @@
 # Chromium Extension Service
 
-This is a service used by [Chromium Update Notifications](https://github.com/kkkrist/chromium-notifier) primarily for error tracking. Legacy versions use it to fetch version info for installed extensions too.
+This is a service used by [Chromium Update Notifications](https://github.com/kkkrist/chromium-notifier) primarily for error tracking. Legacy versions use it to fetch version info for installed extensions.
 
 ## Requirements
 
