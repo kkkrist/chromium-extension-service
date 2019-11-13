@@ -1,6 +1,6 @@
 # Chromium Extension Service
 
-This is a service used by [Chromium Update Notifications](https://github.com/kkkrist/chromium-notifier) primarily for error tracking. Legacy versions use it to fetch version info for installed extensions.
+This is a service used by [Chromium Update Notifications](https://github.com/kkkrist/chromium-notifier) for error tracking and to increase privacy when fetching update info for installed extensions from the Chrome Web Store (strips cookies with personal data).
 
 ## Requirements
 
@@ -14,6 +14,8 @@ Note: The responses you see here is all that's ever saved anywhere, nothing else
 
 ### Error tracking
 
+Helps me to improve the extension.
+
 Send a `POST` request to `/api/errorlogs` with the following JSON body:
 
 ```json
@@ -22,7 +24,7 @@ Send a `POST` request to `/api/errorlogs` with the following JSON body:
 }
 ```
 
-The service will then store the following info in the database:
+The service will then store the following document in the database:
 
 ```json
 {
@@ -36,7 +38,20 @@ The service will then store the following info in the database:
 
 ### Version info for installed extensions
 
-Note: This is only used by Chromium Update Notifications prior to `v1.7.0`. Newer versions will hit `updateUrl` endpoints directly.
+When your browser requests data from `update_url` endpoints directly, cookies with personal data might be transmitted along the way. For example, requests to `update_url`s of extensions obtained from Chrome Web Store usually include the following cookies with lots of personal and adtech-related data (even if you're not logged into your Google account!):
+
+* [1P_JAR](https://cookiepedia.co.uk/cookies/APISID/1P_JAR)
+* [APISID](https://cookiepedia.co.uk/cookies/APISID/APISID)
+* [HSID](https://cookiepedia.co.uk/cookies/APISID/HSID)
+* [NID](https://cookiepedia.co.uk/cookies/APISID/NID)
+* [SAPISID](https://cookiepedia.co.uk/cookies/APISID/SAPISID)
+* [SID](https://cookiepedia.co.uk/cookies/APISID/SID)
+* [SIDCC](https://cookiepedia.co.uk/cookies/APISID/SIDCC)
+* [SSID](https://cookiepedia.co.uk/cookies/APISID/SSID)
+
+(See also [https://policies.google.com/technologies/types](https://policies.google.com/technologies/types))
+
+If you don't like this, version info for installed extensions can be requested through this proxy which will strip all cookies:
 
 Send a `POST` request to `/api` with the following JSON body:
 
