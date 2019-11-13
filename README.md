@@ -38,7 +38,7 @@ The service will then store the following document in the database:
 
 ### Version info for installed extensions
 
-When your browser requests data from `update_url` endpoints directly, cookies with personal data might be transmitted along the way. For example, requests to `update_url`s of extensions obtained from Chrome Web Store usually include the following cookies with lots of personal and adtech-related data (even if you're not logged into your Google account!):
+When your browser requests data from `update_url` endpoints directly, cookies with personal data might be transmitted along the way. For example, requests to `update_url`s of extensions obtained from Chrome Web Store usually include the following cookies (with lots of personal and adtech-related data — even if you're not logged into your Google account!):
 
 * [1P_JAR](https://cookiepedia.co.uk/cookies/APISID/1P_JAR)
 * [APISID](https://cookiepedia.co.uk/cookies/APISID/APISID)
@@ -51,7 +51,7 @@ When your browser requests data from `update_url` endpoints directly, cookies wi
 
 (See also [https://policies.google.com/technologies/types](https://policies.google.com/technologies/types))
 
-If you don't like this, version info for installed extensions can be requested through this proxy which will strip all cookies:
+If you don't like this, all cookies can be stripped by using this proxy to request version info for installed extensions:
 
 Send a `POST` request to `/api` with the following JSON body:
 
