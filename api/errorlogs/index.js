@@ -7,16 +7,6 @@ const throttle = tokenthrottle({
   window: 5 * 60 * 1000
 })
 
-/*
-fetch('http://localhost:3000/api/errorlogs', {
-  method: 'POST',
-  body: JSON.stringify({
-    error: JSON.stringify(error, Object.getOwnPropertyNames(error))
-  }),
-  headers: { 'Content-Type': 'application/json' }
-})
-*/
-
 module.exports = (req, res) => {
   try {
     if (req.method === 'OPTIONS') return res.end()
