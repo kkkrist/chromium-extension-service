@@ -1,14 +1,57 @@
 # Chromium Extension Service
 
-This is a proxy service required by [Chromium Update Notifications](https://github.com/kkkrist/chromium-notifier) to fetch version info for installed extensions. It enables bypassing of [CORS](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing) restrictions of the [Chrome Web Store](https://chrome.google.com/webstore/category/extensions) and tracking of GitHub-hosted extensions (see below).
+This is a service used by [Chromium Update Notifications](https://github.com/kkkrist/chromium-notifier) for error tracking and to increase privacy when fetching update info for installed extensions from the Chrome Web Store (strips cookies with personal data).
 
 ## Requirements
 
 - [Zeit's Now](https://zeit.co/)
-- A MongoDB database (for persistence)
+- A MongoDB database (for persistence and caching)
 - The environment variable `MONGODB_URI` provided via Now Secrets (prod) or a local `.env` file (dev)
 
 ## Usage
+
+Note: The responses you see here is all that's ever saved anywhere, nothing else – particularly client (end user) data – is collected.
+
+### Error tracking
+
+Helps me to improve the extension.
+
+Send a `POST` request to `/api/errorlogs` with the following JSON body:
+
+```json
+{
+  "error": "JSON.stringify(<Error object>, Object.getOwnPropertyNames(<Error object>))"
+}
+```
+
+The service will then store the following document in the database:
+
+```json
+{
+  "_id": "5dc89e461f8c375aa22424cc",
+  "createdAt": "2019-11-10T23:33:26.525Z",
+  "error": "<Error object>",
+  "hashedIp": "1a3a493b",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.390 4.97 Safari/537.36"
+}
+```
+
+### Version info for installed extensions
+
+When your browser requests data from `update_url` endpoints directly, cookies with personal data might be transmitted along the way. For example, requests to `update_url`s of extensions obtained from Chrome Web Store usually include the following cookies (with lots of personal and adtech-related data — even if you're not logged into your Google account!):
+
+* [1P_JAR](https://cookiepedia.co.uk/cookies/APISID/1P_JAR)
+* [APISID](https://cookiepedia.co.uk/cookies/APISID/APISID)
+* [HSID](https://cookiepedia.co.uk/cookies/APISID/HSID)
+* [NID](https://cookiepedia.co.uk/cookies/APISID/NID)
+* [SAPISID](https://cookiepedia.co.uk/cookies/APISID/SAPISID)
+* [SID](https://cookiepedia.co.uk/cookies/APISID/SID)
+* [SIDCC](https://cookiepedia.co.uk/cookies/APISID/SIDCC)
+* [SSID](https://cookiepedia.co.uk/cookies/APISID/SSID)
+
+(See also [https://policies.google.com/technologies/types](https://policies.google.com/technologies/types))
+
+If you don't like this, all cookies can be stripped by using this proxy to request version info for installed extensions:
 
 Send a `POST` request to `/api` with the following JSON body:
 
@@ -46,5 +89,3 @@ The service will respond with an array consisting of version info and meta data 
   }
 ]
 ```
-
-Note: This is all that's ever saved anywhere, nothing else – particularly client (end user) data  – is collected.

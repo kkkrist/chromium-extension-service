@@ -11,7 +11,7 @@ const pipeline = [
         $max: '$timestamp'
       },
       updateUrl: {
-        $last: "$updateUrl"
+        $last: '$updateUrl'
       }
     }
   },

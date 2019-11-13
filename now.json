@@ -4,9 +4,7 @@
   "env": {
     "MONGODB_URI": "@mongodb-uri"
   },
-  "regions": [
-    "bru1"
-  ],
+  "regions": ["bru1"],
   "routes": [
     {
       "src": "^/$",
