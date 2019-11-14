@@ -14,7 +14,7 @@ Note: The responses you see here is all that's ever saved anywhere, nothing else
 
 ### Error tracking
 
-Helps me to improve the extension.
+Helps improving the extension.
 
 Send a `POST` request to `/api/errorlogs` with the following JSON body:
 
@@ -38,7 +38,7 @@ The service will then store the following document in the database:
 
 ### Version info for installed extensions
 
-When your browser requests data from `update_url` endpoints directly, cookies with personal data might be transmitted along the way. For example, requests to `update_url`s of extensions obtained from Chrome Web Store usually include the following cookies (with lots of personal and adtech-related data — even if you're not logged into your Google account!):
+When your browser requests data from `update_url` endpoints directly, cookies with personal data might be transmitted along the way. In my test set-up, requests to `update_url`s of extensions obtained from Chrome Web Store included the following personal data and adtech-related cookies (even though I wasn't logged in into any Google account):
 
 * [1P_JAR](https://cookiepedia.co.uk/cookies/APISID/1P_JAR)
 * [APISID](https://cookiepedia.co.uk/cookies/APISID/APISID)
@@ -51,7 +51,7 @@ When your browser requests data from `update_url` endpoints directly, cookies wi
 
 (See also [https://policies.google.com/technologies/types](https://policies.google.com/technologies/types))
 
-If you don't like this, all cookies can be stripped by using this proxy to request version info for installed extensions:
+If you don't want these cookies to be transmitted, you can use this proxy endpoint to request version info for installed extensions. Enabling "Increase privacy" in [Chromium Update Notifications](https://github.com/kkkrist/chromium-notifier) does exactly that.
 
 Send a `POST` request to `/api` with the following JSON body:
 
