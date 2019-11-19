@@ -25,9 +25,7 @@ const pipeline = [
 
 module.exports = async (req, res) => {
   try {
-    if (req.method === 'OPTIONS') {
-      return res.status(200).json()
-    }
+    if (req.method === 'OPTIONS') return res.end()
 
     const col = await getCollection(process.env.MONGODB_URI)
     const data = await col.aggregate(pipeline).toArray()
