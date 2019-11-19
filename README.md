@@ -20,7 +20,8 @@ Send a `POST` request to `/api/errorlogs` with the following JSON body:
 
 ```json
 {
-  "error": "JSON.stringify(<Error object>, Object.getOwnPropertyNames(<Error object>))"
+  "error": "JSON.stringify(<Error object>, Object.getOwnPropertyNames(<Error object>))",
+  "pluginVersion": "<plugin version used>"
 }
 ```
 
@@ -32,6 +33,7 @@ The service will then store the following document in the database:
   "createdAt": "2019-11-10T23:33:26.525Z",
   "error": "<Error object>",
   "hashedIp": "1a3a493b",
+  "pluginVersion": "<plugin version used>",
   "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.390 4.97 Safari/537.36"
 }
 ```
