@@ -4,6 +4,7 @@
   "env": {
     "MONGODB_URI": "@mongodb-uri"
   },
+  "public": true,
   "regions": ["bru1"],
   "routes": [
     {
