@@ -117,7 +117,7 @@ module.exports = async (req, res) => {
       .status(200)
       .json([...cached, ...(await updateCache(fresh, prodversion))])
   } catch (error) {
-    console.error(error)
+    console.error(error, req.body)
     return res.status(500).json({ error: error.message })
   }
 }
