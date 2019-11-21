@@ -1,6 +1,6 @@
 {
   "name": "chromium-extension-service",
-  "version": "1.3.1",
+  "version": "1.3.2",
   "description": "Proxy for Chrome extension meta data",
   "main": "api/index.js",
   "engines": {
