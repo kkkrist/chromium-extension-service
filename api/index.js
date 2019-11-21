@@ -32,15 +32,25 @@ const getFreshEntries = async (updateUrl, ids, prodversion) => {
   const xml = await fetch(
     `${updateUrl}?${x.join('&')}&prodversion=${prodversion}`
   ).then(req => req.text())
-  const app = _get(xmltwojs.parse(xml), 'gupdate.app', [])
+  const app = _get(xmltwojs.parse(xml), 'gupdate.app', ids.map(id => ({ id })))
 
-  return (Array.isArray(app) ? app : [app]).map(a => ({
-    id: a.appid,
-    prodversion,
-    timestamp: new Date().getTime(),
-    updateUrl,
-    ...a.updatecheck
-  }))
+  return (Array.isArray(app) ? app : [app]).map(a => {
+    const res = {
+      id: a.id,
+      prodversion,
+      timestamp: new Date().getTime(),
+      updateUrl
+    }
+
+    if (a.updatecheck) {
+      return {
+        ...res,
+        ...a.updatecheck
+      }
+    }
+
+    return res
+  })
 }
 
 const updateCache = async (fresh, prodversion) => {
