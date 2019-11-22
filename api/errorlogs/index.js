@@ -30,7 +30,7 @@ module.exports = (req, res) => {
 
       const report = {
         createdAt: new Date(),
-        error: JSON.parse(req.body.error),
+        error: req.body.error,
         hashedIp,
         userAgent: req.headers['user-agent']
       }
