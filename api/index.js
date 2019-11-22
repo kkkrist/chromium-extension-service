@@ -34,23 +34,16 @@ const getFreshEntries = async (updateUrl, ids, prodversion) => {
   ).then(req => req.text())
   const app = _get(xmltwojs.parse(xml), 'gupdate.app', ids.map(id => ({ id })))
 
-  return (Array.isArray(app) ? app : [app]).map(a => {
-    const res = {
-      id: a.id,
+  return (Array.isArray(app) ? app : [app])
+    .filter(({ updatecheck }) => updatecheck && updatecheck.version)
+    .map(({ appid, updatecheck, ...rest }) => ({
+      ...updatecheck,
+      ...rest,
+      id: appid,
       prodversion,
       timestamp: new Date().getTime(),
       updateUrl
-    }
-
-    if (a.updatecheck) {
-      return {
-        ...res,
-        ...a.updatecheck
-      }
-    }
-
-    return res
-  })
+    }))
 }
 
 const updateCache = async (fresh, prodversion) => {
