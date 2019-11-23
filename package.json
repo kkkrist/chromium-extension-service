@@ -4,7 +4,7 @@
   "description": "Proxy for Chrome extension meta data",
   "main": "api/index.js",
   "engines": {
-    "node": "10.x"
+    "node": "12.x"
   },
   "scripts": {
     "start": "now dev"
