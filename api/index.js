@@ -117,7 +117,7 @@ module.exports = async (req, res) => {
       }, {})
 
     const fresh = _flatten(
-      await Promise.all(
+      await Promise.allSettled(
         Object.keys(jobs).map(
           updateUrl =>
             updateUrl &&
@@ -126,9 +126,16 @@ module.exports = async (req, res) => {
       )
     )
 
-    return res
-      .status(200)
-      .json([...cached, ...(await updateCache(fresh, prodversion))])
+    return res.status(200).json([
+      ...cached,
+      ...(await updateCache(
+        fresh
+          .filter(({ status }) => status === 'fulfilled')
+          .map(({ value }) => value)
+          .flat(),
+        prodversion
+      ))
+    ])
   } catch (error) {
     console.error(error, req.body)
     return res.status(500).json({ error: error.message })
