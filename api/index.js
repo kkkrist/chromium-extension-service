@@ -51,7 +51,7 @@ const getFreshEntries = async (updateUrl, ids, prodversion) => {
         updateUrl
       }))
   } catch (error) {
-    console.error('xml string: ', xml)
+    console.error(error.message, ids, xml.substring(0, 150))
     throw error
   }
 }
