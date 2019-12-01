@@ -21,7 +21,7 @@ module.exports = (req, res) => {
       if (throttled)
         return res
           .status(429)
-          .json({ error: 'Rate limit exceeded, please slow down.' })
+          .json({ error: 'Rate limit exceeded, please slow down!' })
 
       if (!req.body.error)
         return res.status(400).json({ error: 'Missing args!' })
@@ -32,6 +32,7 @@ module.exports = (req, res) => {
         createdAt: new Date(),
         error: req.body.error,
         hashedIp,
+        pluginVersion: req.body.pluginVersion,
         userAgent: req.headers['user-agent']
       }
 
