@@ -28,9 +28,9 @@ const getFreshEntries = async (updateUrl, ids, prodversion) => {
     ]
   }
 
-  const x = ids.map(id => `x=${encodeURIComponent(`id=${id}&uc`)}`)
+  const x = ids.map(id => `x=${encodeURIComponent(`id=${id}&uc`)}`).join('&')
   const xml = await fetch(
-    `${updateUrl}?${x.join('&')}&prodversion=${prodversion}`
+    `${updateUrl}?acceptformat=crx2,crx3&prodversion=${prodversion}&${x}`
   ).then(req => req.text())
 
   try {
