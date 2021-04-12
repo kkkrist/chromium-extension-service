@@ -7,7 +7,7 @@
     "node": "12.x"
   },
   "scripts": {
-    "start": "now dev"
+    "start": "vercel dev"
   },
   "repository": {
     "type": "git",
