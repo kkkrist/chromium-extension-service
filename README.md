@@ -4,7 +4,7 @@ This is a service used by [Chromium Update Notifications](https://github.com/kkk
 
 ## Requirements
 
-- [Zeit's Now](https://zeit.co/)
+- [Vercel](https://vercel.com/)
 - A MongoDB database (for persistence and caching)
 - The environment variable `MONGODB_URI` provided via Now Secrets (prod) or a local `.env` file (dev)
 
