@@ -4,7 +4,7 @@
   "description": "Proxy for Chrome extension meta data",
   "main": "api/index.js",
   "engines": {
-    "node": "12.x"
+    "node": "15.x"
   },
   "scripts": {
     "start": "vercel dev"
