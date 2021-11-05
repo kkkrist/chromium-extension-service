@@ -3,6 +3,7 @@ const _get = require('lodash.get')
 const fetch = require('node-fetch')
 const xmltwojs = require('xmltwojs')
 const getCollection = require('../lib/get-collection')
+const { version } = require('../package.json')
 
 const addIfNew = (arr = [], item) =>
   item === undefined ? arr : [...new Set([...arr]).add(item)]
@@ -101,6 +102,8 @@ module.exports = async (req, res) => {
         )
       )
     )
+
+    res.setHeader('Proxy-Version', version)
 
     return res.status(200).json([
       ...(await updateDb(
