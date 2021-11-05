@@ -4,8 +4,6 @@ const fetch = require('node-fetch')
 const xmltwojs = require('xmltwojs')
 const getCollection = require('../lib/get-collection')
 
-let _cache = null
-
 const addIfNew = (arr = [], item) =>
   item === undefined ? arr : [...new Set([...arr]).add(item)]
 
@@ -56,7 +54,7 @@ const getFreshEntries = async (updateUrl, ids, prodversion) => {
   }
 }
 
-const updateCache = async (fresh, prodversion) => {
+const updateDb = async (fresh, prodversion) => {
   const col = await getCollection(process.env.MONGODB_URI)
 
   const freshDb = _flatten(
@@ -70,15 +68,6 @@ const updateCache = async (fresh, prodversion) => {
       )
     )).map(({ value }) => value)
   )
-
-  freshDb.forEach(item => {
-    const index = _cache.findIndex(({ id }) => id === item.id)
-    if (index > -1) {
-      _cache[index] = item
-    } else {
-      _cache.push(item)
-    }
-  })
 
   return freshDb
 }
@@ -95,20 +84,7 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: 'Missing args!' })
     }
 
-    if (!_cache) {
-      const col = await getCollection(process.env.MONGODB_URI)
-      _cache = (await col.find().toArray()) || []
-    }
-
-    const cached = _cache.filter(
-      c =>
-        extensions.find(ext => ext.id === c.id) &&
-        c.prodversion === prodversion &&
-        c.timestamp + 30 * 60 * 1000 > new Date().getTime()
-    )
-
     const jobs = extensions
-      .filter(ext => !cached.find(ce => ce.id === ext.id))
       .reduce((acc, { id, updateUrl }) => {
         if (updateUrl) {
           acc[updateUrl] = addIfNew(acc[updateUrl], id)
@@ -127,8 +103,7 @@ module.exports = async (req, res) => {
     )
 
     return res.status(200).json([
-      ...cached,
-      ...(await updateCache(
+      ...(await updateDb(
         fresh
           .filter(({ status }) => status === 'fulfilled')
           .map(({ value }) => value)
