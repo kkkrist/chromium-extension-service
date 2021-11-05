@@ -88,7 +88,7 @@ module.exports = async (req, res) => {
     const { extensions, prodversion } = req.body || {}
 
     if (req.method === 'OPTIONS') {
-      return res.status(200).json({})
+      return res.status(204).json()
     }
 
     if (!Array.isArray(extensions) || !prodversion) {
